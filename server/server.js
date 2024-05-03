@@ -1,5 +1,5 @@
-const express = require("express");
-const restaurantsController = require("./restaurantsController");
+import express from "express";
+import restaurantsController from "./restaurantsController.js";
 
 const app = express();
 const port = 3000;
