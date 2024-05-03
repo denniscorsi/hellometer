@@ -4,12 +4,12 @@ import restaurantsController from "./restaurantsController.js";
 const app = express();
 const port = 3000;
 
-app.get("/restaurants/ids", restaurantsController.getRestaurantIds, (req, res) => {
+app.get("/v1/restaurants/ids", restaurantsController.getRestaurantIds, (req, res) => {
   res.status(200).json(res.locals.restaurantIds);
 });
 
 app.get(
-  "/restaurants/:id/data",
+  "/v1/restaurants/:id/data",
   restaurantsController.getRestaurantData,
   restaurantsController.formatRestaurantData,
   (req, res) => {
@@ -17,7 +17,8 @@ app.get(
   }
 );
 
-app.use((req, res) => {
+app.use("/*", (req, res) => {
+  console.log("404 error");
   res.status(404).send("Not Found");
 });
 
