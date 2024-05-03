@@ -12,7 +12,6 @@ const GraphView: React.FC<Props> = ({ activeRestaurant }) => {
   return (
     <div>
       <h3>graph for {activeRestaurant} </h3>
-      <div>graph goes here</div>
       <div>
         <Graph activeRestaurant={activeRestaurant} activeProperty={activeProperty} />
         <Buttons setActiveProperty={setActiveProperty} />

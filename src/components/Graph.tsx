@@ -23,13 +23,12 @@ const Graph: React.FC<Props> = ({ activeRestaurant, activeProperty }) => {
         setDataset(data);
       })
       .catch((err) => console.error(err));
-  }, []);
+  }, [activeRestaurant]);
 
   const valueFormatter = (value: number | null) => `${value}mm`;
 
   return (
     <>
-      <div>Test</div>
       <BarChart
         dataset={dataset}
         xAxis={[{ scaleType: "band", dataKey: "hour" }]}
