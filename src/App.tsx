@@ -6,8 +6,10 @@ import Header from "./Header";
 import Selector from "./Selector";
 
 function App() {
+  const [activeRestaurant, setActiveRestaurant] = useState<number | null>(null);
+
   const handleRestaurantChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("change");
+    setActiveRestaurant(parseInt(event.target.value));
   };
 
   return (
