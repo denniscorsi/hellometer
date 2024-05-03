@@ -11,6 +11,10 @@
     "db-init": "node ./database/init.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.15.16",
+    "@mui/x-charts": "^7.3.2",
     "express": "^4.19.2",
     "fast-csv": "^5.0.1",
     "pg": "^8.11.5",
