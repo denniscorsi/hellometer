@@ -63,6 +63,8 @@ restaurantsController.formatRestaurantData = (req, res, next) => {
     return { hour, ...roundedValues };
   });
 
+  formatedData.sort((a, b) => a.hour - b.hour);
+
   res.locals.restaurantData = formatedData;
   return next();
 };
