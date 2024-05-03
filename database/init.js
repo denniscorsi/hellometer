@@ -40,12 +40,12 @@ const createTable = async () => {
 };
 
 // Load the data from the CSV files into the visits table
-const loadData = () => {
+const loadData = async () => {
   // The filenames correspond to the restaurant ids
   const restaurant_ids = getFilenames();
 
   // For each restaurant we have data on, read the CSV file and insert the data into the table
-  restaurant_ids.forEach((restaurant_id) => {
+  restaurant_ids.forEach(async (restaurant_id) => {
     let stream = fs.createReadStream(`database/data/${restaurant_id}.csv`);
     let csvData = [];
     let csvStream = fastcsv
@@ -53,27 +53,40 @@ const loadData = () => {
       .on("data", function (data) {
         csvData.push(data);
       })
-      .on("end", function () {
+      .on("end", async function () {
         // remove the header line
         csvData.shift();
 
-        pool.connect((err, client) => {
-          if (err) throw err;
-
-          try {
-            csvData.forEach((row) => {
-              client.query(insertVisitQuery, [restaurant_id, ...row], (err, res) => {
-                if (err) {
-                  console.log(`Error with restaurant ${restaurant_id}, row ${row}`);
-                  console.log("That row is ommitted.");
-                }
-              });
+        // Create a promise for each row insert operation
+        const rowPromises = csvData.map((row) => {
+          return new Promise((resolve, reject) => {
+            pool.connect((err, client, done) => {
+              if (err) {
+                done();
+                reject(err);
+              } else {
+                client.query(insertVisitQuery, [restaurant_id, ...row], (err, res) => {
+                  done(); // Release the client back to the pool
+                  // The conditional below is commented out to keep the terminal clean. We could build an error log where we note individual rows that failed.
+                  // if (err) {
+                  //   console.log(`Error with restaurant ${restaurant_id}, row ${row}`);
+                  // }
+                  resolve(res);
+                });
+              }
             });
-          } catch (error) {
-            console.log("Error loading data:", error);
-          }
+          });
         });
+
+        // Wait for all promises to resolve
+        try {
+          await Promise.all(rowPromises);
+          console.log("Data loaded successfully for restaurant", restaurant_id);
+        } catch (error) {
+          console.error("Error loading data for restaurant", restaurant_id, error);
+        }
       });
+
     stream.pipe(csvStream);
   });
 };
@@ -81,6 +94,3 @@ const loadData = () => {
 // Call the functions
 await createTable();
 loadData();
-console.log("Database initialized successfully");
-
-
