@@ -8,9 +8,14 @@ app.get("/restaurants/ids", restaurantsController.getRestaurantIds, (req, res) =
   res.status(200).json(res.locals.restaurantIds);
 });
 
-app.get("/restaurants/:id/data", restaurantsController.getRestaurantData, (req, res) => {
-  res.status(200).json(res.locals.data);
-});
+app.get(
+  "/restaurants/:id/data",
+  restaurantsController.getRestaurantData,
+  restaurantsController.formatRestaurantData,
+  (req, res) => {
+    res.status(200).json(res.locals.restaurantData);
+  }
+);
 
 app.use((req, res) => {
   res.status(404).send("Not Found");

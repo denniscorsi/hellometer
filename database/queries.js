@@ -23,8 +23,9 @@ SELECT DATE_TRUNC('hour', arrival) AS hour,
   AVG(order_time) AS average_order_time,
   AVG(wait_time) AS average_wait_time,
   AVG(payment_time) AS average_payment_time,
-  AVG(total_time) AS average_total_time,
+  AVG(total_time) AS average_total_time
 FROM visits
+WHERE restaurant_id = $1
 GROUP BY hour;
 `;
 

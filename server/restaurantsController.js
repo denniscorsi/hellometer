@@ -31,8 +31,40 @@ restaurantsController.getRestaurantIds = (req, res, next) => {
   });
 };
 
+// For a particular restaurant, query the database for the average times, grouped by hour
 restaurantsController.getRestaurantData = (req, res, next) => {
   const id = req.params.id;
+
+  pool.query(getAveragesQuery, [id], (err, result) => {
+    if (err) {
+      return next({
+        log: "Error in restaurantsController.getRestaurantData",
+        message: {
+          err: "An error occurred"
+        }
+      });
+    }
+    res.locals.restaurantData = result.rows;
+    return next();
+  });
+};
+
+// Format the data to round the average times and extract the hour from the timestamp
+restaurantsController.formatRestaurantData = (req, res, next) => {
+  let formatedData = res.locals.restaurantData.map((data) => {
+    const timestamp = new Date(data.hour);
+    const hour = timestamp.getHours();
+    const roundedValues = {
+      average_order_time: Math.round(data["average_order_time"]),
+      average_wait_time: Math.round(data["average_wait_time"]),
+      average_payment_time: Math.round(data["average_payment_time"]),
+      average_total_time: Math.round(data["average_total_time"])
+    };
+    return { hour, ...roundedValues };
+  });
+
+  res.locals.restaurantData = formatedData;
+  return next();
 };
 
 export default restaurantsController;
