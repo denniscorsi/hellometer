@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
-import pkg from "pg";
 import fs from "fs";
 import fastcsv from "fast-csv";
+import pkg from "pg";
 
 import { createTableQuery, insertVisitQuery } from "./queries.js";
 
@@ -29,7 +29,7 @@ const getFilenames = () => {
   return filenames;
 };
 
-// Create the visits table
+// Creates the visits table
 const createTable = async () => {
   try {
     await pool.query(createTableQuery);
@@ -39,63 +39,7 @@ const createTable = async () => {
   }
 };
 
-// // Load the data from the CSV files into the visits table
-// const loadData = async () => {
-//   // The filenames correspond to the restaurant ids
-//   const restaurant_ids = getFilenames();
-
-//   // For each restaurant we have data on, read the CSV file and insert the data into the table
-//   restaurant_ids.forEach(async (restaurant_id) => {
-//     let stream = fs.createReadStream(`database/data/${restaurant_id}.csv`);
-//     let csvData = [];
-//     let csvStream = fastcsv
-//       .parse()
-//       .on("data", function (data) {
-//         csvData.push(data);
-//       })
-//       .on("end", async function () {
-//         // remove the header line
-//         csvData.shift();
-
-//         // Create a promise for each row insert operation
-//         const rowPromises = csvData.map((row) => {
-//           return new Promise((resolve, reject) => {
-//             pool.connect((err, client, done) => {
-//               if (err) {
-//                 done();
-//                 reject(err);
-//               } else {
-//                 client.query(insertVisitQuery, [restaurant_id, ...row], (err, res) => {
-//                   done(); // Release the client back to the pool
-//                   // The conditional below is commented out to keep the terminal clean. We could build an error log where we note individual rows that failed.
-//                   // if (err) {
-//                   //   console.log(`Error with restaurant ${restaurant_id}, row ${row}`);
-//                   // }
-//                   resolve(res);
-//                 });
-//               }
-//             });
-//           });
-//         });
-
-//         // Wait for all promises to resolve
-//         try {
-//           await Promise.all(rowPromises);
-//           console.log("Data loaded successfully for restaurant", restaurant_id);
-//         } catch (error) {
-//           console.error("Error loading data for restaurant", restaurant_id, error);
-//         }
-//       });
-
-//     stream.pipe(csvStream);
-//   });
-// };
-
-
-
-// ---- non-promises version ----
-
-// Load the data from the CSV files into the visits table
+// Loads the data from the CSV files into the visits table
 const loadData = async () => {
   // The filenames correspond to the restaurant ids
   const restaurant_ids = getFilenames();
@@ -108,7 +52,9 @@ const loadData = async () => {
     let csvStream = fastcsv
       .parse()
       .on("data", function (data) {
-        if (isHeader) isHeader = false;
+        if (isHeader)
+          // This prevents the header row from being inserted into the table
+          isHeader = false;
         else {
           pool.connect((err, client, done) => {
             if (err) {
@@ -122,9 +68,10 @@ const loadData = async () => {
         }
       })
       .on("end", async function () {
-        console.log("Data loaded successfully for restaurant", restaurant_id);
+        console.log("Data file read for restaurant", restaurant_id);
       });
 
+    // Stream the data from the CSV file one row at a time
     stream.pipe(csvStream);
   });
 };
@@ -132,3 +79,6 @@ const loadData = async () => {
 // Call the functions
 await createTable();
 loadData();
+console.log(
+  "Please wait for the process to fully exit. Data is still loading into the database even after the file has been read..."
+);
