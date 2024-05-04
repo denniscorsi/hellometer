@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Box, FormControl, InputLabel, MenuItem } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { styled } from "@mui/material/styles";
 
 interface SelectorProps {
   activeRestaurant: number | null;
   setActiveRestaurant: (restaurantId: number) => void;
 }
+
+// Custom styling for the select component
+const CustomSelect = styled(Select)({
+  "& .MuiSelect-filled": {
+    backgroundColor: "#2897EC",
+    color: "white",
+    fontSize: "1.4rem"
+  }
+});
 
 const Selector: React.FC<SelectorProps> = ({ activeRestaurant, setActiveRestaurant }) => {
   const [restaurantIds, setRestaurantIds] = useState<number[]>([]);
@@ -22,9 +32,10 @@ const Selector: React.FC<SelectorProps> = ({ activeRestaurant, setActiveRestaura
 
   return (
     <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
+      <h3>Select a restaurant ID</h3>
+      <FormControl fullWidth variant="filled">
         <InputLabel id="restaurant-select-label">Restaurant Id</InputLabel>
-        <Select
+        <CustomSelect
           labelId="restaurant-select-label"
           id="restaurant-select"
           value={activeRestaurant?.toString()}
@@ -34,23 +45,10 @@ const Selector: React.FC<SelectorProps> = ({ activeRestaurant, setActiveRestaura
           {restaurantIds.map((id) => (
             <MenuItem value={id}>{id}</MenuItem>
           ))}
-        </Select>
+        </CustomSelect>
       </FormControl>
     </Box>
   );
 };
 
 export default Selector;
-
-{
-  /* <div>
-<form>
-  <label htmlFor="selector">Select a restaurant:</label>
-  <select name="selector" id="selector" onChange={handleChange}>
-    {restaurantIds.map((id) => (
-      <option value={id}>{id}</option>
-    ))}
-  </select>
-</form>
-</div> */
-}

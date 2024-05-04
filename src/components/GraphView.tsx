@@ -7,12 +7,21 @@ interface Props {
 }
 
 const GraphView: React.FC<Props> = ({ activeRestaurant }) => {
-  const [activeProperty, setActiveProperty] = useState<string>("Order");
+  const [activeProperty, setActiveProperty] = useState<string>("Total");
+
+  const activity: string =
+    activeProperty === "Order"
+      ? "Ordering"
+      : activeProperty === "Wait"
+      ? "Waiting"
+      : activeProperty === "Payment"
+      ? "Paying"
+      : "Total";
 
   return (
     <div>
-      <h3>graph for {activeRestaurant} </h3>
-      <div>
+      <h2>Average Time a Customer Spent {activity} </h2>
+      <div id="graph-container">
         <Graph activeRestaurant={activeRestaurant} activeProperty={activeProperty} />
         <Buttons setActiveProperty={setActiveProperty} />
       </div>
