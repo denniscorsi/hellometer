@@ -8,30 +8,16 @@ interface Props {
 }
 
 const Buttons: React.FC<Props> = ({ setActiveProperty }) => {
-  const buttons = [
-    <Button key="order" onClick={() => setActiveProperty("Order")}>
-      Order
-    </Button>,
-    <Button key="wait" onClick={() => setActiveProperty("Wait")}>
-      Wait
-    </Button>,
-    <Button key="payment" onClick={() => setActiveProperty("Payment")}>
-      Payment
-    </Button>,
-    <Button key="total" onClick={() => setActiveProperty("Total")}>
-      Total
+  const buttonOptions = ["Order", "Wait", "Payment", "Total"];
+
+  const buttons = buttonOptions.map((option) => (
+    <Button key={option} onClick={() => setActiveProperty(option)}>
+      {option}
     </Button>
-  ];
+  ));
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        "& > *": {
-          m: 1
-        }
-      }}
-    >
+    <Box>
       <ButtonGroup orientation="vertical" aria-label="Vertical button group">
         {buttons}
       </ButtonGroup>
