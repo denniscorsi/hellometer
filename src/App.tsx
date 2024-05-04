@@ -1,4 +1,4 @@
-import { useState } from "react";
+import react, { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -9,14 +9,10 @@ import GraphView from "./components/GraphView";
 function App() {
   const [activeRestaurant, setActiveRestaurant] = useState<number | null>(null);
 
-  const handleRestaurantChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setActiveRestaurant(parseInt(event.target.value));
-  };
-
   return (
     <>
       <Header />
-      <Selector handleChange={handleRestaurantChange} />
+      <Selector activeRestaurant={activeRestaurant} setActiveRestaurant={setActiveRestaurant} />
       <GraphView activeRestaurant={activeRestaurant} />
     </>
   );
