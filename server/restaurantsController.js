@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import NodeCache from "node-cache";
 import pkg from "pg";
 import { getRestaurantIdsQuery, getAveragesQuery } from "../database/queries.js";
 
@@ -11,42 +12,76 @@ const pool = new pkg.Pool({
   max: 5
 });
 
+// Configure cache
+const cache = new NodeCache({ stdTTL: 60 });
+
 const restaurantsController = {};
 
 // Returns a list of the restaurant ids that exist in the database
 restaurantsController.getRestaurantIds = (req, res, next) => {
-  pool.query(getRestaurantIdsQuery, (err, result) => {
-    if (err) {
-      return next({
-        log: "Error in restaurantsController.getRestaurantIds",
-        message: {
-          err: "An error occurred"
-        }
-      });
-    }
+  // Check if the restaurant ids are in the cache
+  const cachedIds = cache.get("restaurantIds");
 
-    // This pulls out the restaurant ids from the query result
-    res.locals.restaurantIds = result.rows.map((row) => row.restaurant_id);
+  if (cachedIds) {
+    // If they are in the cache, use that data
+    res.locals.restaurantIds = cachedIds;
     return next();
-  });
+  } else {
+    // If they are not in the cache, query the database
+    pool.query(getRestaurantIdsQuery, (err, result) => {
+      if (err) {
+        return next({
+          log: "Error in restaurantsController.getRestaurantIds",
+          message: {
+            err: "An error occurred"
+          }
+        });
+      }
+
+      // This pulls out the restaurant ids from the query result
+      const restaurantIds = result.rows.map((row) => row.restaurant_id);
+
+      // Add the restaurant ids to the cache
+      cache.set("restaurantIds", restaurantIds);
+
+      res.locals.restaurantIds = restaurantIds;
+      return next();
+    });
+  }
 };
 
 // For a particular restaurant, query the database for the average times, grouped by hour
 restaurantsController.getRestaurantData = (req, res, next) => {
   const id = req.params.id;
 
-  pool.query(getAveragesQuery, [id], (err, result) => {
-    if (err) {
-      return next({
-        log: "Error in restaurantsController.getRestaurantData",
-        message: {
-          err: "An error occurred"
-        }
-      });
-    }
-    res.locals.restaurantData = result.rows;
+  // Check if the restaurant data is in the cache
+  const cachedData = cache.get(id);
+
+  if (cachedData) {
+    // If it is in the cache, use that data
+    res.locals.restaurantData = cachedData;
     return next();
-  });
+  } else {
+    // If it is not in the cache, query the database
+    pool.query(getAveragesQuery, [id], (err, result) => {
+      if (err) {
+        return next({
+          log: "Error in restaurantsController.getRestaurantData",
+          message: {
+            err: "An error occurred"
+          }
+        });
+      }
+
+      const restaurantData = result.rows;
+
+      // Add the restaurant data to the cache
+      cache.set(id, restaurantData);
+
+      res.locals.restaurantData = restaurantData;
+      return next();
+    });
+  }
 };
 
 // Format the data to round the average times and extract the hour from the timestamp
