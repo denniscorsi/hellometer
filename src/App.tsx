@@ -13,7 +13,7 @@ function App() {
     <>
       <Header />
       <Selector activeRestaurant={activeRestaurant} setActiveRestaurant={setActiveRestaurant} />
-      <GraphView activeRestaurant={activeRestaurant} />
+      {activeRestaurant && <GraphView activeRestaurant={activeRestaurant} />}
     </>
   );
 }
