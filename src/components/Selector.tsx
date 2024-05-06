@@ -26,7 +26,7 @@ const Selector: React.FC<SelectorProps> = ({ activeRestaurant, setActiveRestaura
       .then((data) => setRestaurantIds(data));
   }, []);
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleChange = (event: SelectChangeEvent): void => {
     setActiveRestaurant(Number(event.target.value));
   };
 
@@ -43,7 +43,9 @@ const Selector: React.FC<SelectorProps> = ({ activeRestaurant, setActiveRestaura
           onChange={handleChange}
         >
           {restaurantIds.map((id) => (
-            <MenuItem value={id}>{id}</MenuItem>
+            <MenuItem value={id} key={id}>
+              {id}
+            </MenuItem>
           ))}
         </CustomSelect>
       </FormControl>

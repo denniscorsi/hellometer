@@ -9,6 +9,7 @@ interface Props {
 const GraphView: React.FC<Props> = ({ activeRestaurant }) => {
   const [activeProperty, setActiveProperty] = useState<string>("Total");
 
+  // Select the text to be used in the graph title
   const activity: string =
     activeProperty === "Order"
       ? "Ordering"
