@@ -3,6 +3,8 @@ import { Box, FormControl, InputLabel, MenuItem } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { styled } from "@mui/material/styles";
 
+import { fetchRestaurantIds } from "../utils/fetch";
+
 interface SelectorProps {
   activeRestaurant: number | null;
   setActiveRestaurant: (restaurantId: number) => void;
@@ -21,9 +23,13 @@ const Selector: React.FC<SelectorProps> = ({ activeRestaurant, setActiveRestaura
   const [restaurantIds, setRestaurantIds] = useState<number[]>([]);
 
   useEffect(() => {
-    fetch("v1/restaurants/ids")
-      .then((res) => res.json())
-      .then((data) => setRestaurantIds(data));
+    fetchRestaurantIds()
+      .then((data) => {
+        setRestaurantIds(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }, []);
 
   const handleChange = (event: SelectChangeEvent): void => {

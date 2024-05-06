@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
+import { fetchRestaurantData } from "../utils/fetch";
 
 interface Props {
   activeRestaurant: number | null;
@@ -41,12 +42,15 @@ const Graph: React.FC<Props> = ({ activeRestaurant, activeProperty }) => {
   const columnName = "average_" + activeProperty.toLowerCase() + "_time";
 
   useEffect(() => {
-    fetch(`v1/restaurants/${activeRestaurant}/data`)
-      .then((res) => res.json())
-      .then((data) => {
-        setDataset(data);
-      })
-      .catch((err) => console.error(err));
+    if (activeRestaurant) {
+      fetchRestaurantData(activeRestaurant)
+        .then((data) => {
+          setDataset(data);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
   }, [activeRestaurant]);
 
   return (
